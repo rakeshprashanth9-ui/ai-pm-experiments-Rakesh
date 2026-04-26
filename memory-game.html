@@ -9,10 +9,21 @@
         :root {
             --primary-color: #2196f3;
             --background-color: #f5f5f5;
+            --surface-color: #ffffff;
             --card-back: #1976d2;
             --card-front: #ffffff;
             --text-color: #333333;
             --success-color: #4caf50;
+        }
+
+        body.dark-theme {
+            --primary-color: #90caf9;
+            --background-color: #121212;
+            --surface-color: #1f2937;
+            --card-back: #1565c0;
+            --card-front: #273246;
+            --text-color: #eceff1;
+            --success-color: #81c784;
         }
 
         * {
@@ -54,7 +65,7 @@
             justify-content: space-around;
             flex-wrap: wrap;
             gap: 1rem;
-            background: white;
+            background: var(--surface-color);
             padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -173,7 +184,7 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--surface-color);
             padding: 2rem;
             border-radius: 8px;
             text-align: center;
@@ -190,7 +201,7 @@
         .scores-list {
             max-width: 600px;
             margin: 1rem auto;
-            background: white;
+            background: var(--surface-color);
             padding: 1rem;
             border-radius: 8px;
         }
@@ -233,6 +244,9 @@
             <div class="stat">
                 <h2>Rating</h2>
                 <p class="stat-value rating" aria-live="polite">★★★</p>
+            </div>
+            <div class="stat">
+                <button id="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
             </div>
         </div>
 
@@ -285,9 +299,28 @@
             rating: document.querySelector('.rating'),
             modal: document.querySelector('.modal'),
             finalStats: document.querySelector('.final-stats'),
+            themeToggle: document.getElementById('theme-toggle'),
             gridButtons: document.querySelectorAll('.grid-btn'),
             scoresList: document.querySelector('.scores-list')
         };
+
+        const themeKey = 'memoryGameTheme';
+        const defaultTheme = 'light';
+
+        function applyTheme(theme) {
+            const isDark = theme === 'dark';
+            document.body.classList.toggle('dark-theme', isDark);
+            elements.themeToggle.setAttribute('aria-pressed', String(isDark));
+            elements.themeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            localStorage.setItem(themeKey, theme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem(themeKey);
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : (prefersDark ? 'dark' : defaultTheme);
+            applyTheme(theme);
+        }
 
         // Card symbols (emojis) for both grid sizes
         const symbols = {
@@ -498,7 +531,13 @@
             });
         });
 
-        // Initialize game
+        elements.themeToggle.addEventListener('click', () => {
+            const nextTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+            applyTheme(nextTheme);
+        });
+
+        // Initialize theme and game
+        loadTheme();
         updateScoresList();
         initializeGrid();
     </script>
